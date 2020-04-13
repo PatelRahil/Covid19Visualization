@@ -46,9 +46,7 @@ reader.read(json => {
 function App() {
   return (
     <div className="App">
-      { renderMap(countries_json) }
-      { renderMap(states_json) }
-      { renderMap(counties_json) }
+      <Map/>
     </div>
   );
 }
@@ -59,17 +57,75 @@ function renderHTML() {
   // return Page
   return Page.substring(7, Page.length - 8)
 }
-function renderMap(json) {
-  console.log(json)
-  console.log(json.data)
-  // var figure = JSON.parse(json)
-  //var plot = Plotly.newPlot('graph-div', figure.data, figure.layout);
-  return (
-      <Plot
-        data={json.data}
-        layout={json.layout}
-        frames={json.frames}
-      />
-    )
+const scopes = {
+  COUNTIES: 'counties',
+  STATES: 'states',
+  GLOBAL: 'global'
 }
+class Map extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {scope: scopes.GLOBAL}
+    this.renderMap = this.renderMap.bind(this)
+  }
+  render() {
+    return(
+      <div>
+        <button onClick={() => {
+          console.log('States clicked')
+          this.setState({scope: scopes.STATES})
+        }}>
+          US States
+        </button>
+        <button onClick={() => {
+          console.log('Global clicked')
+          this.setState({scope: scopes.GLOBAL})
+        }}>
+          World
+        </button>
+        <button onClick={() => {
+          console.log('Global clicked')
+          this.setState({scope: scopes.COUNTIES})
+        }}>
+          US Counties
+        </button>
+        { this.renderMap() }
+      </div>
+    );
+  }
+
+  renderMap() {
+    var json = {}
+    switch(this.state.scope) {
+      case scopes.COUNTIES:
+        json = counties_json
+        console.log('Counties')
+        break;
+      case scopes.STATES:
+        console.log('States')
+        json = states_json
+        break;
+      case scopes.GLOBAL:
+        console.log('Countries')
+        json = countries_json
+        break;
+    }
+    console.log(json)
+    console.log(json.data)
+    // var figure = JSON.parse(json)
+    //var plot = Plotly.newPlot('graph-div', figure.data, figure.layout);
+    var lay = json.layout
+    lay.height = 900
+    lay.width = 2000
+    return (
+        <Plot
+          data={json.data}
+          layout={lay}
+          frames={json.frames}
+        />
+      )
+  }
+
+}
+
 export default App;
