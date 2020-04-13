@@ -1,7 +1,6 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Page from './Figures/states.html';
 import Plot from 'react-plotly.js';
 import parse from 'html-react-parser'
 import countries_json from './Figures/countries.json'
@@ -49,13 +48,6 @@ function App() {
       <Map/>
     </div>
   );
-}
-function renderHTML() {
-  console.log('Rendering HTML:')
-  console.log(Page.substring(Page.length - 7))
-  console.log(Page.substring(0, 6))
-  // return Page
-  return Page.substring(7, Page.length - 8)
 }
 const scopes = {
   COUNTIES: 'counties',
