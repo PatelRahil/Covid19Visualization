@@ -6,7 +6,7 @@ import Plot from 'react-plotly.js';
 import parse from 'html-react-parser'
 import countries_json from './Figures/countries.json'
 import states_json from './Figures/states.json'
-import counties_json from './Figures/counties.json'
+//import counties_json from './Figures/counties.json'
 /*
 let JsonReader = require('big-json-reader')
 let reader = new JsonReader(require.resolve('./Figures/counties.json'));
@@ -98,7 +98,7 @@ class Map extends React.Component {
     var json = {}
     switch(this.state.scope) {
       case scopes.COUNTIES:
-        json = counties_json
+        //json = counties_json
         console.log('Counties')
         break;
       case scopes.STATES:
