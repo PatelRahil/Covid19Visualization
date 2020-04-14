@@ -51,19 +51,34 @@ function App() {
   );
 }
 const scopes = {
-  COUNTIES: 'counties',
-  STATES: 'states',
-  GLOBAL: 'global'
+  COUNTIES: 'County',
+  STATES: 'State',
+  GLOBAL: 'Country'
+}
+const dataTypes = {
+  CASES: 'Cases',
+  DEATHS: 'Deaths'
 }
 class Map extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {scope: scopes.GLOBAL, state_data: {}, global_data: {}, county_data: {}, county_geojson: {}}
+    this.state = {scope: scopes.GLOBAL, state_data: {}, global_data: {}, county_data: {}, county_geojson: {}, dataType: dataTypes.CASES, width: window.innerWidth, height: window.innerHeight}
     this.load_data = this.load_data.bind(this)
     this.testRender = this.testRender.bind(this)
+    this.updateWindowDimensions = this.updateWindowDimensions.bind(this)
   }
   componentDidMount() {
+    this.updateWindowDimensions();
+    window.addEventListener('resize', this.updateWindowDimensions);
     this.load_data()
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateWindowDimensions);
+  }
+
+  updateWindowDimensions() {
+    this.setState({ width: window.innerWidth, height: window.innerHeight });
   }
   render() {
     return(
@@ -85,6 +100,18 @@ class Map extends React.Component {
           this.setState({scope: scopes.COUNTIES})
         }}>
           US Counties
+        </button>
+        <button onClick={() => {
+          console.log('Cases clicked')
+          this.setState({dataType: dataTypes.CASES})
+        }}>
+          Cases
+        </button>
+        <button onClick={() => {
+          console.log('Cases clicked')
+          this.setState({dataType: dataTypes.DEATHS})
+        }}>
+          Deaths
         </button>
         { this.testRender() }
       </div>
@@ -129,6 +156,9 @@ class Map extends React.Component {
       let stateCases = 'cases'
       let globalCases = 'Confirmed'
       let countyCases = 'cases'
+      let stateDeaths = 'deaths'
+      let globalDeaths = 'Deaths'
+      let countyDeaths = 'deaths'
       var locFunc = null
       var hoverFunc = null
       var dataStr = null
@@ -140,39 +170,59 @@ class Map extends React.Component {
           console.log('Counties')
           locFunc = countyLoc
           hoverFunc = countyNameLoc
-          dataStr = countyCases
+          switch(this.state.dataType) {
+            case dataTypes.CASES:
+              dataStr = countyCases
+              break
+            case dataTypes.DEATHS:
+              dataStr = countyDeaths
+              break
+          }
           locationmode = 'USA-states'
           break;
         case scopes.STATES:
           console.log('States')
           locFunc = stateLoc
           hoverFunc = stateLoc
-          dataStr = stateCases
+          switch(this.state.dataType) {
+            case dataTypes.CASES:
+              dataStr = stateCases
+              break
+            case dataTypes.DEATHS:
+              dataStr = stateDeaths
+              break
+          }
           locationmode = 'USA-states'
           break;
         case scopes.GLOBAL:
           console.log('Countries')
           locFunc = globalLoc
           hoverFunc = globalLoc
-          dataStr = globalCases
+          switch(this.state.dataType) {
+            case dataTypes.CASES:
+              dataStr = globalCases
+              break
+            case dataTypes.DEATHS:
+              dataStr = globalDeaths
+              break
+          }
           locationmode = 'country names'
           break;
       }
-
       var cases = data[0]['data'].map(function(item) { return Math.log10(item[dataStr]) })
       var locs = data[0]['data'].map(locFunc)
       var mapData = [{
         type:'choropleth',
         locations: locs,
         z: cases,
-        customdata: data[0]['data'].map(function(item) { return [item[dataStr]] }),
+        customdata: data[0]['data'].map(function(item) { return item }),
         geo:'geo',
         coloraxis:'coloraxis',
-        hovertemplate: '<b>%{hovertext}</b><br><br>Confirmed: %{customdata[0]}<br>State: %{location}',
+        hovertemplate: '<b>%{hovertext}</b><br><br>' + this.state.dataType + ': %{customdata.' + dataStr + '}<br>' + (this.state.scope === scopes.COUNTIES ? 'State: %{customdata.state}' : ''),
         hovertext: data[0]['data'].map(hoverFunc),
         hoverlabel: { namelength: 0 }
       }]
-      if (this.state.scope == scopes.COUNTIES) {
+      if (this.state.scope === scopes.COUNTIES) {
           mapData[0].geojson = this.state.county_geojson
       } else {
           mapData[0].locationmode = locationmode
@@ -187,11 +237,11 @@ class Map extends React.Component {
             return Math.log10(item[dataStr])
           }),
           customdata: data[i]['data'].map(function(item) {
-            return [item[dataStr]]
+            return item
           }),
           geo:'geo',
           coloraxis:'coloraxis',
-          hovertemplate: '<b>%{hovertext}</b><br><br>Confirmed: %{customdata[0]}<br>State: %{location}',
+          hovertemplate: '<b>%{hovertext}</b><br><br>' + this.state.dataType + ': %{customdata.' + dataStr + '}<br>' + (this.state.scope === scopes.COUNTIES ? 'State: %{customdata.state}' : ''),
           hovertext: data[i]['data'].map(hoverFunc),
           hoverlabel: { namelength: 0 }
         }]
@@ -219,12 +269,12 @@ class Map extends React.Component {
 
       var layout = states_json.layout
       layout.coloraxis.cmax = maxLog
-      layout.height = 900
-      layout.width = 1800
+      layout.height = this.state.height
+      layout.width = this.state.width
       layout.coloraxis.colorbar.title.text = 'Cases'
       layout.sliders[0].steps = sliderSteps
       layout.coloraxis.cmax = maxLog
-      console.log('MAX ', maxLog)
+      console.log('MAX ', layout.sliders)
       layout.coloraxis.cmin = 1
       // layout config based on display selected
       switch(this.state.scope) {
