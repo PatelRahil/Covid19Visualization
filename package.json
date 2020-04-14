@@ -9,6 +9,7 @@
     "big-json-reader": "^1.0.1",
     "express": "^4.17.1",
     "html-react-parser": "^0.10.3",
+    "papaparse": "^5.2.0",
     "path": "^0.12.7",
     "plotly.js": "^1.52.3",
     "react": "^16.13.1",
