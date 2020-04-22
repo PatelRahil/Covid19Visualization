@@ -2,13 +2,9 @@
 
 A web app with interactive COVID-19 maps (and the python script to generate them).
 
-## Installations
-
-`cd covid-19-visualization`, then `npm install`.
-
 ## Running
 
-Run `python CoronavirusVisual.py` at the root, do `cd covid-19-visualization`, and then `npm start`.
+Visit [the website](https://covid19rahil.herokuapp.com).
 
 ## Built With
 
